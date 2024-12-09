@@ -1,7 +1,7 @@
 stages:
   - capture
-  - build
-  - deploy
+  - build_and_push  # Stage for building and pushing Docker images
+  - update-deployment-file  # Stage for updating deployment files with new Docker image tags
 
 variables:
   BUILD_NUMBER: $CI_PIPELINE_IID
@@ -14,13 +14,13 @@ capture-build-number:
   artifacts:
     paths:
       - build_number.txt
-
+      
 # Job: Build and push Docker image for the result microservice
 build-and-push-docker-image-result:
   image: docker:20.10.7
   services:
     - docker:dind
-  stage: build
+  stage: build_and_push
   script:
     - echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
     - docker build -t $DOCKER_USERNAME/result:${BUILD_NUMBER} ./result
@@ -32,16 +32,44 @@ build-and-push-docker-image-result:
     changes:
       - result/**
 
+# Job: Update deployment file with new Docker image tag for the result microservice
+update-deployment-file-result:
+  stage: update-deployment-file
+  environment:
+    name: production
+  script:
+    - git config user.email "ubeujumv@gmail.com"
+    - git config user.name "Ubeujum Valentino"
+    - IMAGE_TAG=$BUILD_NUMBER
+    # Update the image tag in the deployment file for the result microservice
+    - |
+      sed -i "s|image: uvalentino/result:[^ ]*|image: uvalentino/result:${IMAGE_TAG}|g" manifest/result-deployment.yaml
+      cat manifest/result-deployment.yaml
+    - git add manifest/result-deployment.yaml
+    - git commit -m "Update result image to version ${IMAGE_TAG}"
+    - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
+  only:
+    refs:
+      - branches
+    changes:
+      - result/**
+  needs: 
+    - build-and-push-docker-image-result  # Ensure this job runs only after the result image is pushed
+
 # Job: Build and push Docker image for the vote microservice
 build-and-push-docker-image-vote:
   image: docker:20.10.7
   services:
     - docker:dind
-  stage: build
+  stage: build_and_push
   script:
+    # Log in to Docker Hub
     - echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
+    # Build Docker image for the vote microservice
     - docker build -t $DOCKER_USERNAME/vote:${BUILD_NUMBER} ./vote
+    # Verify the image is built
     - docker images $DOCKER_USERNAME/vote:${BUILD_NUMBER}
+    # Push Docker image to Docker Hub
     - docker push $DOCKER_USERNAME/vote:${BUILD_NUMBER}
   only:
     refs:
@@ -49,16 +77,47 @@ build-and-push-docker-image-vote:
     changes:
       - vote/**
 
+# Job: Update deployment file with new Docker image tag for the vote microservice
+update-deployment-file-vote:
+  stage: update-deployment-file
+  environment:
+    name: production
+  script:
+    - git config user.email "ubeujumv@gmail.com"
+    - git config user.name "Ubeujum Valentino"
+    - IMAGE_TAG=$BUILD_NUMBER
+    # Update the image tag in the deployment file for the vote microservice
+    - |
+      sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
+      cat manifest/vote-deployment.yaml  # Optionally view the updated file
+    - git add manifest/vote-deployment.yaml
+    - git commit -m "Update vote image to version ${IMAGE_TAG}"
+    - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
+  only:
+    refs:
+      - branches
+    changes:
+      - vote/**
+  needs: 
+    - build-and-push-docker-image-vote  # Ensure this job runs only after the vote image is pushed
+
+
+# Worker Microservice
+
 # Job: Build and push Docker image for the worker microservice
 build-and-push-docker-image-worker:
   image: docker:20.10.7
   services:
     - docker:dind
-  stage: build
+  stage: build_and_push
   script:
+    # Log in to Docker Hub
     - echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
+    # Build Docker image for the worker microservice
     - docker build -t $DOCKER_USERNAME/worker:${BUILD_NUMBER} ./worker
+    # Verify the image is built
     - docker images $DOCKER_USERNAME/worker:${BUILD_NUMBER}
+    # Push Docker image to Docker Hub
     - docker push $DOCKER_USERNAME/worker:${BUILD_NUMBER}
   only:
     refs:
@@ -66,60 +125,26 @@ build-and-push-docker-image-worker:
     changes:
       - worker/**
 
-# Job: Update deployment file for the result microservice
-update-deployment-file-result:
-  stage: deploy
-  environment:
-    name: production
-  script:
-    - git config user.email "ubeujumv@gmail.com"
-    - git config user.name "Ubeujum Valentino"
-    - IMAGE_TAG=$(cat build_number.txt)
-    - |
-      sed -i "s|image: uvalentino/result:[^ ]*|image: uvalentino/result:${IMAGE_TAG}|g" manifest/result-deployment.yaml
-      cat manifest/result-deployment.yaml
-    - git add manifest/result-deployment.yaml
-    - git commit -m "Update result image to version $IMAGE_TAG"
-    - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
-  needs:
-    - capture-build-number
-    - build-and-push-docker-image-result
-
-# Job: Update deployment file for the vote microservice
-update-deployment-file-vote:
-  stage: deploy
-  environment:
-    name: production
-  script:
-    - git config user.email "ubeujumv@gmail.com"
-    - git config user.name "Ubeujum Valentino"
-    - IMAGE_TAG=$(cat build_number.txt)
-    - |
-      sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
-      cat manifest/vote-deployment.yaml  # Optionally view the updated file
-    - git add manifest/vote-deployment.yaml
-    - git commit -m "Update vote image to version $IMAGE_TAG"
-    - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
-  needs:
-    - capture-build-number
-    - build-and-push-docker-image-vote
-
-# Job: Update deployment file for the worker microservice
+# Job: Update deployment file with new Docker image tag for the worker microservice
 update-deployment-file-worker:
-  stage: deploy
+  stage: update-deployment-file
   environment:
     name: production
   script:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
-    - IMAGE_TAG=$(cat build_number.txt)
+    - IMAGE_TAG=$BUILD_NUMBER
+    # Update the image tag in the deployment file for the vote microservice
     - |
       sed -i "s|image: uvalentino/worker:[^ ]*|image: uvalentino/worker:${IMAGE_TAG}|g" manifest/worker-deployment.yaml
       cat manifest/worker-deployment.yaml  # Optionally view the updated file
-    - cat manifest/worker-deployment.yaml
     - git add manifest/worker-deployment.yaml
-    - git commit -m "Update worker image to version $IMAGE_TAG"
+    - git commit -m "Update worker image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
-  needs:
-    - capture-build-number
-    - build-and-push-docker-image-worker
+  only:
+    refs:
+      - branches
+    changes:
+      - worker/**
+  needs: 
+    - build-and-push-docker-image-worker  # Ensure this job runs only after the vote image is pushed
