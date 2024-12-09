@@ -6,14 +6,14 @@ stages:
 variables:
   BUILD_NUMBER: $CI_PIPELINE_IID
 
-# Job: Capture the build number as an artifact
-capture-build-number:
-  stage: capture
-  script:
-    - echo $BUILD_NUMBER > build_number.txt
-  artifacts:
-    paths:
-      - build_number.txt
+# # Job: Capture the build number as an artifact
+# capture-build-number:
+#   stage: capture
+#   script:
+#     - echo $BUILD_NUMBER > build_number.txt
+#   artifacts:
+#     paths:
+#       - build_number.txt
       
 # Job: Build and push Docker image for the result microservice
 build-and-push-docker-image-result:
