@@ -76,6 +76,7 @@ update-deployment-file-vote:
     - |
       sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
       cat manifest/vote-deployment.yaml  # Optionally view the updated file
+    - git add manifest/vote-deployment.yaml
     - git commit -m "Update vote image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
   only:
