@@ -1,20 +1,10 @@
 stages:
-  - capture
   - build_and_push  # Stage for building and pushing Docker images
   - update-deployment-file  # Stage for updating deployment files with new Docker image tags
 
 variables:
   BUILD_NUMBER: $CI_PIPELINE_IID
 
-# # Job: Capture the build number as an artifact
-# capture-build-number:
-#   stage: capture
-#   script:
-#     - echo $BUILD_NUMBER > build_number.txt
-#   artifacts:
-#     paths:
-#       - build_number.txt
-      
 # Job: Build and push Docker image for the result microservice
 build-and-push-docker-image-result:
   image: docker:20.10.7
@@ -41,7 +31,7 @@ update-deployment-file-result:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - IMAGE_TAG=$BUILD_NUMBER
-    # Update the image tag in the deployment file for the result microservice
+    - git pull --rebase origin main
     - |
       sed -i "s|image: uvalentino/result:[^ ]*|image: uvalentino/result:${IMAGE_TAG}|g" manifest/result-deployment.yaml
       cat manifest/result-deployment.yaml
@@ -53,8 +43,8 @@ update-deployment-file-result:
       - branches
     changes:
       - result/**
-  needs: 
-    - build-and-push-docker-image-result  # Ensure this job runs only after the result image is pushed
+  needs:
+    - build-and-push-docker-image-result
 
 # Job: Build and push Docker image for the vote microservice
 build-and-push-docker-image-vote:
@@ -63,13 +53,9 @@ build-and-push-docker-image-vote:
     - docker:dind
   stage: build_and_push
   script:
-    # Log in to Docker Hub
     - echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-    # Build Docker image for the vote microservice
     - docker build -t $DOCKER_USERNAME/vote:${BUILD_NUMBER} ./vote
-    # Verify the image is built
     - docker images $DOCKER_USERNAME/vote:${BUILD_NUMBER}
-    # Push Docker image to Docker Hub
     - docker push $DOCKER_USERNAME/vote:${BUILD_NUMBER}
   only:
     refs:
@@ -86,11 +72,10 @@ update-deployment-file-vote:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - IMAGE_TAG=$BUILD_NUMBER
-    # Update the image tag in the deployment file for the vote microservice
+    - git pull --rebase origin main
     - |
       sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
       cat manifest/vote-deployment.yaml  # Optionally view the updated file
-    - git add manifest/vote-deployment.yaml
     - git commit -m "Update vote image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
   only:
@@ -98,11 +83,8 @@ update-deployment-file-vote:
       - branches
     changes:
       - vote/**
-  needs: 
-    - build-and-push-docker-image-vote  # Ensure this job runs only after the vote image is pushed
-
-
-# Worker Microservice
+  needs:
+    - build-and-push-docker-image-vote
 
 # Job: Build and push Docker image for the worker microservice
 build-and-push-docker-image-worker:
@@ -111,13 +93,9 @@ build-and-push-docker-image-worker:
     - docker:dind
   stage: build_and_push
   script:
-    # Log in to Docker Hub
     - echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
-    # Build Docker image for the worker microservice
     - docker build -t $DOCKER_USERNAME/worker:${BUILD_NUMBER} ./worker
-    # Verify the image is built
     - docker images $DOCKER_USERNAME/worker:${BUILD_NUMBER}
-    # Push Docker image to Docker Hub
     - docker push $DOCKER_USERNAME/worker:${BUILD_NUMBER}
   only:
     refs:
@@ -134,7 +112,7 @@ update-deployment-file-worker:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - IMAGE_TAG=$BUILD_NUMBER
-    # Update the image tag in the deployment file for the vote microservice
+    - git pull --rebase origin main
     - |
       sed -i "s|image: uvalentino/worker:[^ ]*|image: uvalentino/worker:${IMAGE_TAG}|g" manifest/worker-deployment.yaml
       cat manifest/worker-deployment.yaml  # Optionally view the updated file
@@ -146,5 +124,5 @@ update-deployment-file-worker:
       - branches
     changes:
       - worker/**
-  needs: 
-    - build-and-push-docker-image-worker  # Ensure this job runs only after the vote image is pushed
+  needs:
+    - build-and-push-docker-image-worker
