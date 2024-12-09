@@ -41,7 +41,9 @@ update-deployment-file-result:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - cat artifacts/build_number.txt | xargs read -r IMAGE_TAG
-    - sed -i "s|image: uvalentino/result:[^ ]*|image: uvalentino/result:${IMAGE_TAG}|g" manifest/result-deployment.yaml
+     |
+      sed -i "s|image: uvalentino/result:[^ ]*|image: uvalentino/result:${IMAGE_TAG}|g" manifest/result-deployment.yaml
+      cat manifest/result-deployment.yaml  # Optionally view the updated file
     - git add manifest/result-deployment.yaml
     - git commit -m "Update result image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
@@ -75,7 +77,9 @@ update-deployment-file-vote:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - cat artifacts/build_number.txt | xargs read -r IMAGE_TAG
-    - sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
+     |
+      sed -i "s|image: uvalentino/vote:[^ ]*|image: uvalentino/vote:${IMAGE_TAG}|g" manifest/vote-deployment.yaml
+      cat manifest/vote-deployment.yaml  # Optionally view the updated file
     - git add manifest/vote-deployment.yaml
     - git commit -m "Update vote image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
@@ -109,7 +113,9 @@ update-deployment-file-worker:
     - git config user.email "ubeujumv@gmail.com"
     - git config user.name "Ubeujum Valentino"
     - cat artifacts/build_number.txt | xargs read -r IMAGE_TAG
-    - sed -i "s|image: uvalentino/worker:[^ ]*|image: uvalentino/worker:${IMAGE_TAG}|g" manifest/worker-deployment.yaml
+     |
+      sed -i "s|image: uvalentino/worker:[^ ]*|image: uvalentino/worker:${IMAGE_TAG}|g" manifest/worker-deployment.yaml
+      cat manifest/worker-deployment.yaml  # Optionally view the updated file
     - git add manifest/worker-deployment.yaml
     - git commit -m "Update worker image to version ${IMAGE_TAG}"
     - git push https://gitlab-ci-token:$CI_JOB_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:main
