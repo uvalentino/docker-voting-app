@@ -15,5 +15,5 @@ spec:
         app: worker
     spec:
       containers:
-      - image: uvalentino/worker:1
+      - image: uvalentino/worker:10
         name: worker
