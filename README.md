@@ -1,4 +1,4 @@
-###Example Voting App - CI/CD Pipeline
+### Example Voting App - CI/CD Pipeline
 
 This project demonstrates a complete CI/CD pipeline setup for the Example Voting App. The implementation showcases my DevOps expertise, including:
 - CI/CD with GitLab
@@ -6,13 +6,13 @@ This project demonstrates a complete CI/CD pipeline setup for the Example Voting
 - GitOps with ArgoCD
 - Infrastructure as Code (IaC) using Terraform
 
-##Overview
+## Overview
 The pipeline automates the following:
 
-#Continuous Integration:
+# Continuous Integration:
 - Builds Docker images for microservices (vote, result, worker).
 - Pushes images to Docker Hub.
 
-#Continuous Delivery:
+# Continuous Delivery:
 - Updates Kubernetes manifests with new image tags.
 - Deploys updates to an Amazon EKS cluster via ArgoCD.
