@@ -1,6 +1,6 @@
 # Example Voting App - CI/CD Pipeline
 
-This project demonstrates a complete CI/CD pipeline setup for the Example Voting App. The implementation showcases my DevOps expertise, including:
+This project demonstrates a complete CI/CD pipeline setup for the Example Voting App created by Docker Inc. The implementation showcases my DevOps expertise, including:
 - CI/CD with GitLab
 - Docker and Kubernetes
 - GitOps with ArgoCD
