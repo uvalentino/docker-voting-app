@@ -8,7 +8,7 @@ This project demonstrates a complete CI/CD pipeline setup for the Example Voting
 
 ## How It Works
 
-![diagram-export-12-11-2024-1_44_49-PM](https://github.com/user-attachments/assets/fd68d916-c400-497b-9fbf-85cb5fadb9c0)
+![Screenshot 2024-12-18 192742](https://github.com/user-attachments/assets/da67f24d-0e75-4953-97ab-676c3fc96261)
 
 ### Continuous Integration:
 
